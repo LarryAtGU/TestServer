@@ -1,3 +1,6 @@
+const fs = require('fs');
+
+
 let Users=[{id:1, name:"Blue Fish", age: 18, 
 url :"https://cdn.mos.cms.futurecdn.net/BgZFhT7piMqXpyzfWrdKyP-320-80.jpg",
 weight:60,note:"A small fish in ocean"},
@@ -13,11 +16,34 @@ weight:60,note:"A small fish in ocean"},
 ];
 
 
+const readFile=() => {
+
+let rawdata = fs.readFileSync('./test.json');
+Users = JSON.parse(rawdata);
+console.log(Users);
+}
+
+let firstCall=true;
+const saveFile=()=> {
+
+
+  fs.writeFile('./test.json', JSON.stringify(Users), err => {
+    if (err) {
+      console.error(err);
+    }
+    // file written successfully
+  });
+  
+
+}
+
+
 const removeUser = (uid) => {
   userid=parseInt(uid)
   const prenum=Users.length;
   Results=Users.filter((u)=>u.id!==userid);
   Users=Results
+  saveFile()
   return prenum-Users.length
 }
 
@@ -27,7 +53,7 @@ const addUser = (u) => {
   u.id=id;
   Users.push(u);
 
-  
+  saveFile();
   return id;
 }
 
@@ -63,6 +89,10 @@ exports.create = (req, res) => {
 // Retrieve all Users from the database.
 exports.findAll = (req, res) => {
 
+    if(firstCall) {
+      firstCall=false;
+      readFile();
+    }
     res.send({users:Users});
 
 };
